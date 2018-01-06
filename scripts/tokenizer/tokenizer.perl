@@ -258,7 +258,7 @@ sub tokenize
     $text =~ s/ $//g;
 
     # seperate out all "other" special characters
-    $text =~ s/([^\p{IsAlnum}\s\.\'\`\,\-])/ $1 /g;
+    $text =~ s/([^\p{IsAlnum}\s\.\'\`\,\-\"])/ $1 /g;
 
     # aggressive hyphen splitting
     if ($AGGRESSIVE)
@@ -284,11 +284,18 @@ sub tokenize
     # will also space digit,letter or letter,digit forms (redundant with next section)
     $text =~ s/([^\p{IsN}])[,]/$1 , /g;
     $text =~ s/[,]([^\p{IsN}])/ , $1/g;
-    
+
     # separate "," after a number if it's the end of a sentence
     $text =~ s/([\p{IsN}])[,]$/$1 ,/g;
 
-    # separate , pre and post number
+    # separate quote, unless it is part of a Hebrew acronym
+    # first two lines handle the midline case
+    # last two lines handle the case of last and first character on the line
+    $text =~ s/([^\p{Hebrew}])[\"]/$1 \" /g;
+    $text =~ s/[\"]([^\p{Hebrew}])/ \" $1/g;
+    $text =~ s/([\p{Hebrew}])[\"]$/$1 \"/g;
+    $text =~ s/(^\")/$1 /g;
+
     #$text =~ s/([\p{IsN}])[,]([^\p{IsN}])/$1 , $2/g;
     #$text =~ s/([^\p{IsN}])[,]([\p{IsN}])/$1 , $2/g;
 
